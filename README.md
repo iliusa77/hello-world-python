@@ -15,7 +15,10 @@ The main files in this repository are:
 
 Licensed under Apache 2.0. Please see [LICENSE](LICENSE) for details.
 
-# Beanstalk application and environment deploy
+# Tilt
 ```
-eb init -p docker hello-world-python
+tilt up
 ```
+
+Open in browser http://localhost:10350/
+![alt text](tilt.png)
