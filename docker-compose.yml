@@ -1,0 +1,7 @@
+version: "3"
+
+services:
+  hello-world-python:
+    image: iliusa77/hello-world-python:release-0.0.3
+    ports:
+      - 8080
