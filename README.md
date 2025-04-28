@@ -11,6 +11,24 @@ The main files in this repository are:
 * `service.yaml` contains values (typically configured by a developer) that will be instantiated into the Kubernetes manifest
 * `app.py` is the actual Python/Flask application
 
+# Helm chart
+Enable ingress controller Nginx (minikube)
+```
+minikube addons enable ingress
+```
+
+Installation
+```
+cd k8s/helm
+helm upgrade hello-world-python hello-world-python/ --install --namespace hello-world-python --create-namespace
+```
+
+Removing
+```
+helm del hello-world-python --namespace hello-world-python
+```
+
+
 # License
 
 Licensed under Apache 2.0. Please see [LICENSE](LICENSE) for details.
