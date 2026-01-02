@@ -1,0 +1,42 @@
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: SecurityScan
+    displayName: 'Security Scan with Trivy'
+    jobs:
+      - job: TrivyScan
+        displayName: 'Trivy Container Scan'
+        steps:
+          - task: trivy@1
+            displayName: 'Trivy Vulnerability Scan'
+            inputs:
+              version: 'latest'
+              docker: true
+              image: 'python:3.9'
+              exitCode: 1
+              severities: 'CRITICAL,HIGH'
+          
+          - task: trivy@1
+            displayName: 'Trivy Filesystem Scan'
+            inputs:
+              version: 'latest'
+              path: '$(Build.SourcesDirectory)'
+              exitCode: 0
+              severities: 'CRITICAL,HIGH,MEDIUM'
+          
+          - task: PublishTestResults@2
+            displayName: 'Publish Trivy Scan Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/trivy-results.xml'
+              mergeTestResults: true
+              failTaskOnFailedTests: false
+              testRunTitle: 'Trivy Security Scan Results'
