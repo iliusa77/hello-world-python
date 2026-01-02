@@ -25,16 +25,27 @@ stages:
         image: iliusa77/hello-world-python:$(Build.BuildId)
         severity: HIGH,CRITICAL
         exitCode: '0'
-        format: 'sarif'
-        output: '$(Build.ArtifactStagingDirectory)/trivy-results.sarif'
+        format: 'json'
+
+    - task: Bash@3
+      displayName: 'Read Trivy Scan Results'
+      condition: succeededOrFailed()
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "=== Trivy Scan Results ==="
+          ls -la $(Agent.TempDirectory)/trivy/
+          echo ""
+          echo "=== Scan Report ==="
+          cat $(Agent.TempDirectory)/trivy/*.json | jq '.' || cat $(Agent.TempDirectory)/trivy/*.json
+          echo ""
+          echo "=== Summary ==="
+          cat $(Agent.TempDirectory)/trivy/*.json | jq '.Results[]?.Vulnerabilities[]? | select(.Severity == "CRITICAL" or .Severity == "HIGH") | {Severity, VulnerabilityID, PkgName, InstalledVersion}' || echo "No critical or high vulnerabilities found or jq not available"
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Trivy Scan Results'
       condition: succeededOrFailed()
       inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)/trivy-results.sarif'
+        PathtoPublish: '$(Agent.TempDirectory)/trivy'
         ArtifactName: 'TrivyScanResults'
         publishLocation: 'Container'
-        mergeTestResults: true
-        failTaskOnFailedTests: false
-        testRunTitle: 'Trivy Security Scan Results'
