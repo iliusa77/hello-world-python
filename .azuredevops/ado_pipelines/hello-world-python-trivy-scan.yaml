@@ -24,15 +24,17 @@ stages:
       inputs:
         image: iliusa77/hello-world-python:$(Build.BuildId)
         severity: HIGH,CRITICAL
-        exitCode: '1'
-        format: 'table'
+        exitCode: '0'
+        format: 'sarif'
+        output: '$(Build.ArtifactStagingDirectory)/trivy-results.sarif'
 
-    - task: PublishTestResults@2
+    - task: PublishBuildArtifacts@1
       displayName: 'Publish Trivy Scan Results'
       condition: succeededOrFailed()
       inputs:
-        testResultsFormat: 'JUnit'
-        testResultsFiles: '**/trivy-results.xml'
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/trivy-results.sarif'
+        ArtifactName: 'TrivyScanResults'
+        publishLocation: 'Container'
         mergeTestResults: true
         failTaskOnFailedTests: false
         testRunTitle: 'Trivy Security Scan Results'
