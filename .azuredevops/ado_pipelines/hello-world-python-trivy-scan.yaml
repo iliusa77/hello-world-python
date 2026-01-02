@@ -1,0 +1,28 @@
+stages:
+- stage: BuildAndScan
+  displayName: Build & Security Scan
+  jobs:
+  - job: Build
+    displayName: Build Docker image
+    pool:
+      vmImage: ubuntu-latest
+
+    steps:
+    - checkout: self
+
+    - task: Docker@2
+      displayName: Build image
+      inputs:
+        command: build
+        repository: iliusa77/hello-world-python
+        dockerfile: Dockerfile
+        tags: |
+          $(Build.BuildId)
+
+    - task: Trivy@1
+      displayName: Trivy scan Docker image
+      inputs:
+        image: iliusa77/hello-world-python:$(Build.BuildId)
+        severity: HIGH,CRITICAL
+        exitCode: '1'
+        format: 'table'
