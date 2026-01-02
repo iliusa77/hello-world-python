@@ -26,3 +26,13 @@ stages:
         severity: HIGH,CRITICAL
         exitCode: '1'
         format: 'table'
+
+    - task: PublishTestResults@2
+      displayName: 'Publish Trivy Scan Results'
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/trivy-results.xml'
+        mergeTestResults: true
+        failTaskOnFailedTests: false
+        testRunTitle: 'Trivy Security Scan Results'
